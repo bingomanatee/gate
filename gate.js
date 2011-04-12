@@ -52,7 +52,7 @@ module.exports.prototype.task_start = function(task) {
  * or the last task in the queue. 
  */
 module.exports.prototype.task_done = function(id) {
-    if (typeof id == 'undefined') {
+    if (!id) {
         var done_task = this._tasks.pop();
     } else {
         var new_tasks = [];
