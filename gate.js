@@ -10,17 +10,18 @@
 module.exports = function(callbacks, params) {
     this._params = params ? params : {};
     this._tasks = [];
-    this.start = false;
+    this._start = false;
+    this.debug = false;
     this.interval = 100;
     this._callbacks = typeof(callbacks) == 'function' ? [callbacks] : _.isArray(callbacks) ? callbacks : [];
 }
 
 module.exports.prototype.start = function() {
-    this.start = true;
+    this._start = true;
     var self = this;
     
     var i = setInterval(this.interval,function(){
-        if (!self.start){
+        if (!self._start){
             clearInterval(i);
         } else {
             self._check_status();
@@ -43,7 +44,12 @@ module.exports.prototype.task_start = function(task) {
         task.id = this._tasks.length;
     }
     this._tasks.push(task);
+    if (this.debug) this.status();
     return task.id;
+}
+
+module.exports.prototype.status = function(){
+    console.log(__filename + '::gate: ' + this._tasks.length + ' tasks in queue');    
 }
 
 /**
@@ -54,7 +60,7 @@ module.exports.prototype.task_start = function(task) {
 module.exports.prototype.task_done = function(id) {
     if (!id) {
         var done_task = this._tasks.pop();
-    } else {
+    } else { // todo: use underscore filter...
         var new_tasks = [];
         var found = false;
         this._tasks.forEach(function(task, i) {
@@ -69,7 +75,7 @@ module.exports.prototype.task_done = function(id) {
             } else { // save every other task - not including the last - 
                 new_tasks.push(task);
             }
-        })
+        });
         this._tasks = new_tasks;
     }
 
@@ -80,8 +86,13 @@ module.exports.prototype.task_done = function(id) {
 module.exports.prototype._check_status = function() {
     var self = this;
     
-    if ((!this._tasks.length) && this.start) {
-        this.start = false;
+    if ((this._start) && (this.debug)) {
+            
+        console.log(__filename + ':: _check_status: tasks = ' + this._tasks.length);
+    }
+    
+    if ((this._tasks.length < 1) && this._start) {
+        this._start = false;
         this._callbacks.forEach(function(callback) {
             callback(self);
         });
