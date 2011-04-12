@@ -1,0 +1,22 @@
+Its pretty easy to have a callback respond to a single action, or a series of chained actions.
+
+What if you want to have a callback respond to several asynchronous actions, at the time that they are ALL done?
+
+gate, short for aggregate, is meant to fill in that role. 
+
+USE
+
+var gate = new require('gate')(
+  function(){ console.log('done'); }
+);
+
+for (var i = 0; i < 10; ++i) {
+gate.task_start();
+setTimeout(gate.task_done, Math.random() * 10000); // note - we have no idea when the task done will be fired off - nor do we need to. 
+}
+
+gate.start(); // at this point an interval function will check to see if all the tasks are done and will call the callback if they are. 
+
+*************** WARNING *********************
+
+this is the first commit - no testing has been done yet!
