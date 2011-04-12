@@ -70,6 +70,7 @@ module.exports.prototype.task_done = function(id) {
                 new_tasks.push(task);
             }
         })
+        this._tasks = new_tasks;
     }
 
     this._check_status();
